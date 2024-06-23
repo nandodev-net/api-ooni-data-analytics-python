@@ -1,3 +1,13 @@
+.DEFAULT_GOAL := help
+
+ifdef TOXENV
+TOX := poetry run tox -e $(TOXENV) -- ## isolate each tox environment if TOXENV is defined
+else
+TOX := poetry run tox -- ## use default tox environment if TOXENV is not defined
+endif
+
+.PHONY: requirements clean test-app test-quality format
+
 PACKAGE=api_ooni_data_analytics
 PROJECT=api-ooni-data-analytics
 SOURCES=./$(PACKAGE)
@@ -5,10 +15,16 @@ BLACK_OPTS=--exclude templates ${SOURCES}
 REPO_NAME=api-ooni-data-analytics-python
 PACKAGE_NAME=api_ooni_data_analytics
 
-.PHONY: requirements clean test-app test-quality format
+help:
+	@perl -nle'print $& if m{^[\.a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m  %-25s\033[0m %s\n", $$1, $$2}'
 
 requirements: ## install development environment requirements
 	pip install -r requirements.txt
+	poetry install -v
+
+format: ## format the project style.
+	poetry run black $(BLACK_OPTS)
+	poetry run isort $(SOURCES)
 
 clean: ## delete most git-ignored files
 	find . -name '__pycache__' -exec rm -rf {} +
@@ -18,15 +34,21 @@ clean: ## delete most git-ignored files
 	rm -fr build/
 	rm -fr dist/
 
-test-app: ## run the app test suite
-	pytest $(SOURCES)
+test-actions-app: ## run the app tests with tox (reserved for GHactions or to run with act running 'act pull_request -j run_tests').
+	$(TOX) -- $(SOURCES)
 
-test-quality: ## runs the code style tools diagnostic
-	pylint ${SOURCES}
-	black --check --diff $(BLACK_OPTS)
-	isort --check-only --diff $(SOURCES)
-	pydocstyle ${SOURCES}
+test-local-app: ## run the app test suite without tox.
+	poetry run pytest $(SOURCES)
 
-format: ## format the project style
-	black $(BLACK_OPTS)
-	isort $(SOURCES)
+test-quality: ## runs the code style tools diagnostic.
+	poetry run pylint $(SOURCES)
+	poetry run black --check --diff $(BLACK_OPTS)
+	poetry run isort --check-only --diff $(SOURCES)
+	poetry run pydocstyle $(SOURCES)
+
+test-repo: clean test-quality test-actions-app
+
+test-dev: test-quality test-local-app
+
+run: ## run the Django development server
+	poetry run python manage.py runserver

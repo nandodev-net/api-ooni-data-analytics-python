@@ -19,6 +19,7 @@ isort = "^5.13.2"
 pylint = "^3.2.3"
 pydocstyle = "^6.3.0"
 pytest = "^8.2.2"
+tox = "^4.15.1"
 
 
 [build-system]
