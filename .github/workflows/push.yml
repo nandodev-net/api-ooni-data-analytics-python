@@ -1,0 +1,70 @@
+name: Test suite workflow
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  run_tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.12']
+        django: ['5.0']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache Poetry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo 'export PATH="$HOME/.local/bin:$PATH"' >> $GITHUB_ENV
+        shell: bash
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install Dependencies
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          poetry install -v
+        env:
+          POETRY_VIRTUALENVS_CREATE: false
+
+      - name: Set Django Version
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          poetry add django@${{ matrix.django }}
+
+      - name: Install Tox
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          poetry add tox
+
+      - name: Run Tests
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          TOXENV=py${{ matrix.python-version }}-django${{ matrix.django }}
+          TOXENV=${TOXENV//./}
+          echo "TOXENV is $TOXENV"
+          make test-repo
