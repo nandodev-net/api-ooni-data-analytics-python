@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  api-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: python /code/manage.py runserver 0.0.0.0:8000
+    container_name: api_ooni_data_analytics
+    volumes:
+      - .:/code
+      - static_files:/code/static
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.dev.env
+    depends_on:
+      - db-timescale
+      - db-mongo
+
+  db-timescale:
+    image: timescale/timescaledb-ha:pg14-latest
+    container_name: timescaledb
+    volumes:
+      - postgres_data:/home/postgres/pgdata/data
+    env_file:
+      - ./.dev.env
+    hostname: postgres
+
+  db-mongo:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_data:/data/db
+    env_file:
+      - ./.dev.env
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    env_file:
+      - ./.dev.env
+    depends_on:
+      - db-mongo
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: always
+    ports:
+      - 8080:80
+    env_file:
+      - ./.dev.env
+    depends_on:
+      - db-timescale
+
+volumes:
+  postgres_data:
+  static_files:
+  mongo_data:
