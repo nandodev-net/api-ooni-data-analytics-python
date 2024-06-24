@@ -46,9 +46,9 @@ test-quality: ## runs the code style tools diagnostic.
 	poetry run isort --check-only --diff $(SOURCES)
 	poetry run pydocstyle $(SOURCES)
 
-test-repo: clean test-quality test-actions-app
+test-repo: clean test-quality test-actions-app ## run test for GHactions environment.
 
-test-dev: test-quality test-local-app
+test-dev: test-quality test-local-app ## run test for local environment.
 
 run: ## run the Django development server
 	poetry run python manage.py runserver
