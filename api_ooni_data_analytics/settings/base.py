@@ -9,9 +9,11 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+
 import os
-from mongoengine import connect
 from pathlib import Path
+
+from mongoengine import connect
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -70,22 +72,22 @@ WSGI_APPLICATION = "api_ooni_data_analytics.wsgi.application"
 
 # Database settings for TimescaleDB
 DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('SQL_ENGINE', 'timescale.db.backends.postgresql'),
-        'NAME': os.getenv('SQL_DATABASE'),
-        'USER': os.getenv('SQL_USER'),
-        'PASSWORD': os.getenv('SQL_PASSWORD'),
-        'HOST': os.getenv('SQL_HOST', 'db-timescale'),
-        'PORT': os.getenv('SQL_PORT', 5432),
+    "default": {
+        "ENGINE": os.getenv("SQL_ENGINE", "timescale.db.backends.postgresql"),
+        "NAME": os.getenv("SQL_DATABASE"),
+        "USER": os.getenv("SQL_USER"),
+        "PASSWORD": os.getenv("SQL_PASSWORD"),
+        "HOST": os.getenv("SQL_HOST", "db-timescale"),
+        "PORT": os.getenv("SQL_PORT"),
     },
 }
 
 # MongoDB settings with MongoEngine
-MONGO_DATABASE = os.getenv('MONGO_DATABASE')
-MONGO_HOST = os.getenv('MONGO_HOST', 'db-mongo')
-MONGO_PORT = int(os.getenv('MONGO_PORT', 27017))
-MONGO_USERNAME = os.getenv('MONGO_INITDB_ROOT_USERNAME')
-MONGO_PASSWORD = os.getenv('MONGO_INITDB_ROOT_PASSWORD')
+MONGO_DATABASE = os.getenv("MONGO_DATABASE")
+MONGO_HOST = os.getenv("MONGO_HOST", "db-mongo")
+MONGO_PORT = int(os.getenv("MONGO_PORT"))
+MONGO_USERNAME = os.getenv("MONGO_INITDB_ROOT_USERNAME")
+MONGO_PASSWORD = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
 
 connect(
     db=MONGO_DATABASE,
@@ -93,7 +95,7 @@ connect(
     password=MONGO_PASSWORD,
     host=MONGO_HOST,
     port=MONGO_PORT,
-    authentication_source='admin'
+    authentication_source="admin",
 )
 
 # Password validation
@@ -130,8 +132,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATICFILES_DIRS = []
 
 # Default primary key field type
