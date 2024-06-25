@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from mongoengine import connect
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +24,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-g8ggh3)n%v*)0$)7-o5*2p2^+%2zy&(^qrqnhfef*2@yd0vao6"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -73,13 +70,33 @@ WSGI_APPLICATION = "api_ooni_data_analytics.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# Database settings for TimescaleDB
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+        "ENGINE": os.getenv("SQL_ENGINE", "timescale.db.backends.postgresql"),
+        "NAME": os.getenv("SQL_DATABASE"),
+        "USER": os.getenv("SQL_USER"),
+        "PASSWORD": os.getenv("SQL_PASSWORD"),
+        "HOST": os.getenv("SQL_HOST", "db-timescale"),
+        "PORT": os.getenv("SQL_PORT"),
+    },
 }
 
+# MongoDB settings with MongoEngine
+MONGO_DATABASE = os.getenv("MONGO_DATABASE")
+MONGO_HOST = os.getenv("MONGO_HOST", "db-mongo")
+MONGO_PORT = int(os.getenv("MONGO_PORT"))
+MONGO_USERNAME = os.getenv("MONGO_INITDB_ROOT_USERNAME")
+MONGO_PASSWORD = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
+
+connect(
+    db=MONGO_DATABASE,
+    username=MONGO_USERNAME,
+    password=MONGO_PASSWORD,
+    host=MONGO_HOST,
+    port=MONGO_PORT,
+    authentication_source="admin",
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -116,6 +133,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATICFILES_DIRS = []
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
