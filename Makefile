@@ -8,7 +8,7 @@ endif
 
 .PHONY: requirements clean test-app test-quality format
 
-PACKAGE=api_ooni_data_analytics
+PACKAGE=apps
 PROJECT=api-ooni-data-analytics
 SOURCES=./$(PACKAGE)
 BLACK_OPTS=--exclude templates ${SOURCES}
@@ -41,10 +41,10 @@ test-local-app: ## run the app test suite without tox.
 	poetry run pytest $(SOURCES)
 
 test-quality: ## runs the code style tools diagnostic.
-	poetry run pylint $(SOURCES)
+	poetry run pylint --rcfile=setup.cfg $(SOURCES)
 	poetry run black --check --diff $(BLACK_OPTS)
-	poetry run isort --check-only --diff $(SOURCES)
-	poetry run pydocstyle $(SOURCES)
+	poetry run isort --settings-path=setup.cfg --check-only --diff $(SOURCES)
+	poetry run pydocstyle --config=setup.cfg $(SOURCES)
 
 test-repo: clean test-quality test-actions-app ## run test for GHactions environment.
 

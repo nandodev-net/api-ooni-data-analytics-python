@@ -23,11 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-g8ggh3)n%v*)0$)7-o5*2p2^+%2zy&(^qrqnhfef*2@yd0vao6"
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -35,6 +35,17 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 ]
+
+SYSTEM_APPS = [
+    'apps.users.apps.UsersConfig',
+]
+
+THIRD_PARTY_APPS = []
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + SYSTEM_APPS
+
+# Customuser Auth setting
+AUTH_USER_MODEL = 'users.CustomUser'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -85,7 +96,7 @@ DATABASES = {
 # MongoDB settings with MongoEngine
 MONGO_DATABASE = os.getenv("MONGO_DATABASE")
 MONGO_HOST = os.getenv("MONGO_HOST", "db-mongo")
-MONGO_PORT = int(os.getenv("MONGO_PORT"))
+MONGO_PORT = os.getenv("MONGO_PORT")
 MONGO_USERNAME = os.getenv("MONGO_INITDB_ROOT_USERNAME")
 MONGO_PASSWORD = os.getenv("MONGO_INITDB_ROOT_PASSWORD")
 
@@ -94,7 +105,7 @@ connect(
     username=MONGO_USERNAME,
     password=MONGO_PASSWORD,
     host=MONGO_HOST,
-    port=MONGO_PORT,
+    port=int(MONGO_PORT),
     authentication_source="admin",
 )
 
