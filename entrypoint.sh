@@ -1,15 +1,18 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ "$DATABASE" = "postgres" ]
-then
-    echo "Waiting for postgres..."
+# Wait for database services to be available
+while ! nc -z db-timescale 5432; do
+  echo "Waiting for TimescaleDB to be available..."
+  sleep 0.1
+done
 
-    while ! nc -z $SQL_HOST $SQL_PORT; do
-      sleep 0.1
-    done
+while ! nc -z db-mongo 27017; do
+  echo "Waiting for MongoDB to be available..."
+  sleep 0.1
+done
 
-    echo "PostgreSQL started"
-fi
+# Install dependencies
+poetry install --no-interaction --no-ansi
 
-
+# Run the development server
 exec "$@"
