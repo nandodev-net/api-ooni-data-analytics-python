@@ -2,26 +2,28 @@
 FROM python:3.10.2-slim-bullseye
 
 # Set environment variables
-ENV PIP_DISABLE_PIP_VERSION_CHECK 1
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-RUN apt-get update
-RUN apt-get install -y netcat
+RUN apt-get update && apt-get install -y netcat
 
-# Set work directory
+# Set work directory.
 WORKDIR /code
 
-# Install dependencies
+# Install poetry dependency.
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY ./pyproject.toml .
-RUN poetry config virtualenvs.create false --local
-RUN poetry install && rm -rf ~/.cache/pypoetry/{cache,artifacts}
+# Copy only the poetry dependencies files.
+COPY pyproject.toml poetry.lock ./
 
-# Copy project
+# Install the dependencies.
+RUN poetry config virtualenvs.create false --local \
+    && poetry install --no-interaction --no-ansi && rm -rf ~/.cache/pypoetry/{cache,artifacts}
+
+# Copy project files.
 COPY . .
 
-# run entrypoint.sh
+# Run entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
