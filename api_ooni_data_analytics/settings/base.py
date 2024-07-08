@@ -34,18 +34,21 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
 ]
 
 SYSTEM_APPS = [
-    'apps.users.apps.UsersConfig',
+    "apps.users.apps.UsersConfig",
 ]
 
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = [
+    "oauth2_provider",
+]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + SYSTEM_APPS
 
 # Customuser Auth setting
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = "users.CustomUser"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -77,6 +80,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "api_ooni_data_analytics.wsgi.application"
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ]
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
